@@ -1,0 +1,77 @@
+#include <stdio.h>
+
+// Define the Employee struct
+struct Employee {
+    int id;
+    char firstName[20];
+    char lastName[20];
+    float salary;
+};
+
+// Function to write an employee to the file
+void writeEmployee(FILE *fp, struct Employee employee) {
+    fwrite(&employee, sizeof(struct Employee), 1, fp);
+}
+
+// Function to read an employee from the file
+struct Employee readEmployee(FILE *fp) {
+    struct Employee employee;
+    fread(&employee, sizeof(struct Employee), 1, fp);
+    return employee;
+}
+
+// Function to update an employee's salary
+void updateSalary(FILE *fp, int id, float newSalary) {
+    struct Employee employee;
+    int recordNumber = (id - 1) * sizeof(struct Employee);
+    fseek(fp, recordNumber, SEEK_SET);
+    employee = readEmployee(fp);
+    if (employee.id == id) {
+        employee.salary = newSalary;
+        fseek(fp, -sizeof(struct Employee), SEEK_CUR);
+        fwrite(&employee, sizeof(struct Employee), 1, fp);
+    }
+}
+
+// Function to delete an employee
+void deleteEmployee(FILE *fp, int id) {
+    struct Employee employee;
+    int recordNumber = (id - 1) * sizeof(struct Employee);
+    fseek(fp, recordNumber, SEEK_SET);
+    employee = readEmployee(fp);
+    if (employee.id == id) {
+        fseek(fp, -sizeof(struct Employee), SEEK_CUR);
+        fwrite(&employee, sizeof(struct Employee), 1, fp);
+        employee.id = 0;
+        fwrite(&employee, sizeof(struct Employee), 1, fp);
+    }
+}
+
+int main() {
+    FILE *fp;
+    int id;
+    float newSalary;
+    
+    // Open the file in read/write mode
+    fp = fopen("employees.dat", "r+b");
+    
+    // Write some employee records to the file
+    writeEmployee(fp, (struct Employee) {1, "John", "Doe", 50000});
+    writeEmployee(fp, (struct Employee) {2, "Jane", "Doe", 55000});
+    writeEmployee(fp, (struct Employee) {3, "Bob", "Smith", 60000});
+    
+    // Update an employee's salary
+    updateSalary(fp, 2, 60000);
+    
+    // Delete an employee
+    deleteEmployee(fp, 1);
+    
+    // Read an employee record from the file
+    struct Employee employee = readEmployee(fp);
+    printf("ID: %d, Name: %s %s, Salary: %.2f\n", employee.id, employee.firstName, employee.lastName, employee.salary);
+    
+    // Close the file
+    fclose(fp);
+    
+   return 0;
+}
