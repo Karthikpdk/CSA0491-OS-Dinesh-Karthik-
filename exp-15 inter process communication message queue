@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <string.h>
+
+#define MAX_MSG_SIZE  100
+
+// Define a structure for the message
+struct message_buffer {
+    long msg_type;
+    char msg_text[MAX_MSG_SIZE];
+};
+
+int main() {
+    key_t key;
+    int msgid;
+
+    // Generate a unique key
+    key = ftok("progfile", 65);
+
+    // Create a message queue
+    msgid = msgget(key, 0666 | IPC_CREAT);
+
+    // Define a message buffer
+    struct message_buffer message;
+
+    // Prompt user for input
+    printf("Enter message to send: ");
+    fgets(message.msg_text, MAX_MSG_SIZE, stdin);
+    message.msg_type = 1; // message type can be any positive integer
+
+    // Send the message
+    msgsnd(msgid, &message, sizeof(message), 0);
+
+    // Print message sent confirmation
+    printf("Message sent: %s", message.msg_text);
+
+    // Receive a message
+    msgrcv(msgid, &message, sizeof(message), 1, 0);
+
+    // Display the message
+    printf("Data Received is : %s", message.msg_text);
+
+    // Delete the message queue
+    msgctl(msgid, IPC_RMID, NULL);
+
+    return 0;
+}
