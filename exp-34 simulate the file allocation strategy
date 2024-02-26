@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_RECORDS 100
+
+// Define a structure for a record
+typedef struct {
+    int id;
+    char data[50];
+} Record;
+
+int main() {
+    Record records[MAX_RECORDS];
+    int numRecords;
+
+    // Read the number of records from the user
+    printf("Enter the number of records: ");
+    scanf("%d", &numRecords);
+
+    // Read records from the user
+    printf("Enter records:\n");
+    for (int i = 0; i < numRecords; i++) {
+        printf("Record %d:\n", i + 1);
+        printf("ID: ");
+        scanf("%d", &records[i].id);
+        printf("Data: ");
+        scanf("%s", records[i].data);
+    }
+
+    // Simulate file allocation strategy
+    printf("\nSimulating file allocation strategy...\n");
+
+    // Print records sequentially
+    printf("\nReading records sequentially:\n");
+    for (int i = 0; i < numRecords; i++) {
+        printf("Record %d: ID=%d, Data=%s\n", i + 1, records[i].id, records[i].data);
+    }
+
+    // Simulate accessing records by reading all previous records
+    printf("\nSimulating accessing records by reading all previous records:\n");
+    for (int i = 0; i < numRecords; i++) {
+        printf("Reading records up to Record %d:\n", i + 1);
+        for (int j = 0; j <= i; j++) {
+            printf("Record %d: ID=%d, Data=%s\n", j + 1, records[j].id, records[j].data);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
