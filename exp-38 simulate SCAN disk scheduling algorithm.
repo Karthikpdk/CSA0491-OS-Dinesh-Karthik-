@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_REQUESTS 100
+#define MAX_TRACKS 1000
+
+// Function to sort disk requests in ascending order
+void sortRequests(int *requests, int num_requests) {
+    for (int i = 0; i < num_requests - 1; i++) {
+        for (int j = 0; j < num_requests - i - 1; j++) {
+            if (requests[j] > requests[j + 1]) {
+                int temp = requests[j];
+                requests[j] = requests[j + 1];
+                requests[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Function to simulate SCAN algorithm
+int simulateSCAN(int initial_head, int *requests, int num_requests, int max_track) {
+    int total_head_movements = 0;
+    int direction = 1; // 1 for moving towards higher tracks, -1 for moving towards lower tracks
+
+    // Sort requests in ascending order
+    sortRequests(requests, num_requests);
+
+    int current_track = initial_head;
+
+    // Move towards higher tracks first
+    while (current_track <= max_track && current_track >= 0) {
+        // Search for requests in the current direction
+        for (int i = 0; i < num_requests; i++) {
+            if (requests[i] == current_track) {
+                // Request found, calculate head movement
+                total_head_movements += abs(current_track - initial_head);
+                initial_head = current_track;
+                requests[i] = -1; // Mark request as serviced
+            }
+        }
+        
+        // Move head in the current direction
+        current_track += direction;
+
+        // Change direction if needed
+        if (current_track == max_track + 1 || current_track == -1) {
+            direction = -direction; // Reverse direction
+            current_track += 2 * direction; // Move two tracks in the opposite direction
+        }
+    }
+
+    return total_head_movements;
+}
+
+int main() {
+    int requests[MAX_REQUESTS];
+    int num_requests;
+    int initial_head;
+    int max_track;
+
+    // Read initial head position from the user
+    printf("Enter initial head position
