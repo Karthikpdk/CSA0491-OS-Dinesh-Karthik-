@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_FRAMES 10
+#define MAX_PAGES 50
+
+int main() {
+    int frames[MAX_FRAMES];
+    int pages[MAX_PAGES];
+    int pageFaults = 0;
+    int pageHits = 0;
+    int currentPageIndex = 0;
+    int numFrames, numPages;
+
+    printf("Enter number of frames: ");
+    scanf("%d", &numFrames);
+
+    printf("Enter number of pages: ");
+    scanf("%d", &numPages);
+
+    printf("Enter the sequence of pages: ");
+    for (int i = 0; i < numPages; i++) {
+        scanf("%d", &pages[i]);
+    }
+
+    // Initialize frames to -1 indicating empty
+    for (int i = 0; i < numFrames; i++) {
+        frames[i] = -1;
+    }
+
+    for (int i = 0; i < numPages; i++) {
+        int page = pages[i];
+        int pageFound = 0;
+
+        // Check if page is already in frames
+        for (int j = 0; j < numFrames; j++) {
+            if (frames[j] == page) {
+                pageHits++;
+                pageFound = 1;
+                break;
+            }
+        }
+
+        // If page is not in frames, find optimal page to replace
+        if (!pageFound) {
+            pageFaults++;
+            if (currentPageIndex < numFrames) {
+                frames[currentPageIndex] = page;
+                currentPageIndex++;
+            } else {
+                int maxDistance = -1;
+                int replaceIndex = -1;
+                for (int j = 0; j < numFrames; j++) {
+                    int distance = 0;
+                    int k;
+                    for (k = i + 1; k < numPages; k++) {
+                        if (frames[j] == pages[k]) {
+                            break;
+                        }
+                        distance++;
+                    }
+                    if (distance > maxDistance) {
+                        maxDistance = distance;
+                        replaceIndex = j;
+                    }
+                    if (k == numPages) {
+                        break;
+                    }
+                }
+                frames[replaceIndex] = page;
+            }
+        }
+
+        printf("Page %d: ", page);
+        for (int j = 0; j < numFrames; j++) {
+            if (frames[j] == -1) {
+                printf(" - ");
+            } else {
+                printf("%2d ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+
+    printf("Page faults: %d\n", pageFaults);
+    printf("Page hits: %d\n", pageHits);
+
+    return 0;
+}
