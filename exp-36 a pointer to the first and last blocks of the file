@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define BLOCK_SIZE 1024
+#define MAX_BLOCKS 100
+
+// Define a structure for a block
+typedef struct Block {
+    int block_number;
+    char data[BLOCK_SIZE];
+    struct Block *next;
+} Block;
+
+// Define a structure for a file
+typedef struct File {
+    char name[50];
+    Block *first_block;
+    Block *last_block;
+} File;
+
+// Function to create a new block
+Block* createBlock(int block_number) {
+    Block* new_block = (Block*)malloc(sizeof(Block));
+    new_block->block_number = block_number;
+    new_block->next = NULL;
+    return new_block;
+}
+
+// Function to create a new file
+File* createFile(char *name) {
+    File* new_file = (File*)malloc(sizeof(File));
+    strcpy(new_file->name, name);
+    new_file->first_block = NULL;
+    new_file->last_block = NULL;
+    return new_file;
+}
+
+// Function to append a block to the file
+void appendBlock(File *file, Block *new_block) {
+    if (file->first_block == NULL) {
+        file->first_block = new_block;
+        file->last_block = new_block;
+    } else {
+        file->last_block->next = new_block;
+        file->last_block = new_block;
+    }
+}
+
+// Function to print file contents
+void printFileContents(File *file) {
+    printf("File: %s\n", file->name);
+    printf("Contents:\n");
+
+    Block *current_block = file->first_block;
+    while (current_block != NULL) {
+        printf("Block %d: %s\n", current_block->block_number, current_block->data);
+        current_block = current_block->next;
+    }
+}
+
+int main() {
+    File *file = createFile("example.txt");
+
+    // Simulate writing data to blocks
+    Block *block1 = createBlock(1);
+    strcpy(block1->data, "This is block 1 data.");
+    appendBlock(file, block1);
+
+    Block *block2 = createBlock(2);
+    strcpy(block2->data, "This is block 2 data.");
+    appendBlock(file, block2);
+
+    Block *block3 = createBlock(3);
+    strcpy(block3->data, "This is block 3 data.");
+    appendBlock(file, block3);
+
+    // Print file contents
+    printFileContents(file);
+
+    // Free allocated memory
+    free(block1);
+    free(block2);
+    free(block3);
+    free(file);
+
+    return 0;
+}
