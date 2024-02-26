@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 100
+#define MAX_INDEX_ENTRIES 10
+
+typedef struct {
+    int data;
+} Block;
+
+typedef struct {
+    int index[MAX_INDEX_ENTRIES];
+} IndexBlock;
+
+void initializeFile(Block* file, int size) {
+    for (int i = 0; i < size; i++) {
+        file[i].data = i + 1;  // Simulating some data in each block
+    }
+}
+
+void initializeIndexBlock(IndexBlock* indexBlock, int size) {
+    for (int i = 0; i < size; i++) {
+        indexBlock->index[i] = -1;  // Initialize all pointers to -1 indicating they are not pointing to any block
+    }
+}
+
+void displayFile(Block* file, int size) {
+    printf("File content:\n");
+    for (int i = 0; i < size; i++) {
+        printf("Block %d: Data = %d\n", i + 1, file[i].data);
+    }
+}
+
+void displayIndexBlock(IndexBlock* indexBlock, int size) {
+    printf("Index block content:\n");
+    for (int i = 0; i < size; i++) {
+        printf("Index %d: Points to Block %d\n", i + 1, indexBlock->index[i]);
+    }
+}
+
+int main() {
+    Block file[MAX_BLOCKS];
+    IndexBlock indexBlock;
+    int fileSize, numBlocks, numIndexEntries;
+
+    printf("Enter the size of the file (number of blocks): ");
+    scanf("%d", &fileSize);
+
+    printf("Enter the number of blocks in the file system: ");
+    scanf("%d", &numBlocks);
+
+    printf("Enter the number of index entries in the index block: ");
+    scanf("%d", &numIndexEntries);
+
+    if (fileSize > numBlocks || numIndexEntries > MAX_INDEX_ENTRIES) {
+        printf("Invalid input. Please make sure file size is less than or equal to the number of blocks and number of index entries is less than or equal to %d.\n", MAX_INDEX_ENTRIES);
+        return 1;
+    }
+
+    initializeFile(file, fileSize);
+    initializeIndexBlock(&indexBlock, numIndexEntries);
+
+    // Populate index block
+    for (int i = 0; i < fileSize; i++) {
+        indexBlock.index[i] = i;  // Point each index entry to the corresponding block
+    }
+
+    // Display file and index block content
+    displayFile(file, fileSize);
+    printf("\n");
+    displayIndexBlock(&indexBlock, numIndexEntries);
+
+    return 0;
+}
